@@ -14,6 +14,12 @@ enum CubeGroup {
     Neutral,
 }
 
+#[derive(Debug, Component, PartialEq, Eq, PartialOrd, Ord)]
+enum BoosterGroup {
+    Speed,
+    Size,
+}
+
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
@@ -110,6 +116,27 @@ impl CubeBundle {
     }
 }
 
+#[derive(Bundle)]
+struct BoosterCubeBundle {
+    #[bundle]
+    cube: CubeBundle,
+    booster: BoosterGroup,
+}
+
+impl BoosterCubeBundle {
+    fn new(
+        group: BoosterGroup,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
+        window: &Window,
+    ) -> Self {
+        BoosterCubeBundle {
+            cube: CubeBundle::new(CubeGroup::Neutral, meshes, materials, window),
+            booster: group,
+        }
+    }
+}
+
 fn spawn_startup_entities(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -131,6 +158,19 @@ fn spawn_startup_entities(
     ));
     commands.spawn_bundle(CubeBundle::new(
         CubeGroup::Neutral,
+        &mut meshes,
+        &mut materials,
+        window.primary(),
+    ));
+    commands.spawn_bundle(BoosterCubeBundle::new(
+        BoosterGroup::Speed,
+        &mut meshes,
+        &mut materials,
+        window.primary(),
+    ));
+
+    commands.spawn_bundle(BoosterCubeBundle::new(
+        BoosterGroup::Size,
         &mut meshes,
         &mut materials,
         window.primary(),
