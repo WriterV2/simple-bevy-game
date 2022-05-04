@@ -10,6 +10,7 @@ struct Direction(Vec3);
 enum CubeGroup {
     Player,
     Enemy,
+    Neutral,
 }
 
 fn main() {
@@ -35,25 +36,49 @@ struct CubeBundle {
 impl CubeBundle {
     fn new(
         group: CubeGroup,
-        speed: f32,
-        direction: Vec3,
-        size: f32,
         position: Vec3,
-        color: Color,
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) -> Self {
-        CubeBundle {
-            group,
-            speed: Speed(speed),
-            direction: Direction(direction),
-            mesh_bundle: MaterialMesh2dBundle {
-                mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
-                material: materials.add(ColorMaterial::from(color)),
-                transform: Transform::default()
-                    .with_scale(Vec3::splat(size))
-                    .with_translation(position),
-                ..default()
+        match group {
+            CubeGroup::Player => CubeBundle {
+                group,
+                speed: Speed(10.),
+                direction: Direction(Vec3::X),
+                mesh_bundle: MaterialMesh2dBundle {
+                    mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
+                    material: materials.add(ColorMaterial::from(Color::BLACK)),
+                    transform: Transform::default()
+                        .with_scale(Vec3::splat(30.))
+                        .with_translation(position),
+                    ..default()
+                },
+            },
+            CubeGroup::Enemy => CubeBundle {
+                group,
+                speed: Speed(10.),
+                direction: Direction(Vec3::Y),
+                mesh_bundle: MaterialMesh2dBundle {
+                    mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
+                    material: materials.add(ColorMaterial::from(Color::RED)),
+                    transform: Transform::default()
+                        .with_scale(Vec3::splat(30.))
+                        .with_translation(position),
+                    ..default()
+                },
+            },
+            CubeGroup::Neutral => CubeBundle {
+                group,
+                speed: Speed(5.),
+                direction: Direction(Vec3::X),
+                mesh_bundle: MaterialMesh2dBundle {
+                    mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
+                    material: materials.add(ColorMaterial::from(Color::YELLOW)),
+                    transform: Transform::default()
+                        .with_scale(Vec3::splat(20.))
+                        .with_translation(position),
+                    ..default()
+                },
             },
         }
     }
@@ -67,21 +92,19 @@ fn spawn_startup_entities(
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands.spawn_bundle(CubeBundle::new(
         CubeGroup::Player,
-        10.0,
-        Vec3::ONE,
-        30.,
-        Vec3::new(100.0, 100.0, 0.1),
-        Color::BLACK,
+        Vec3::new(100., 100., 0.9),
         &mut meshes,
         &mut materials,
     ));
     commands.spawn_bundle(CubeBundle::new(
         CubeGroup::Enemy,
-        10.0,
-        Vec3::ONE,
-        30.,
-        Vec3::new(100.0, 500.0, 0.1),
-        Color::RED,
+        Vec3::new(100., 500., 0.9),
+        &mut meshes,
+        &mut materials,
+    ));
+    commands.spawn_bundle(CubeBundle::new(
+        CubeGroup::Neutral,
+        Vec3::new(20., 300., 0.1),
         &mut meshes,
         &mut materials,
     ));
