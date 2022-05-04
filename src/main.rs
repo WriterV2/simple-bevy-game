@@ -1,4 +1,5 @@
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use rand::Rng;
 
 #[derive(Debug, Component, PartialEq, PartialOrd)]
 struct Speed(f32);
@@ -24,6 +25,28 @@ fn main() {
         .run();
 }
 
+fn get_starting_position(group: &CubeGroup, window: &Window) -> Vec3 {
+    let mut rng = rand::thread_rng();
+    match group {
+        CubeGroup::Player => Vec3::new(0., -window.height() / 3., 100.0),
+        CubeGroup::Enemy => Vec3::new(0., window.height() / 3., 99.0),
+        CubeGroup::Neutral => Vec3::new(
+            rng.gen_range((-window.width() / 2.)..window.width() / 2.),
+            rng.gen_range((-window.height() / 2.)..window.height() / 2.),
+            98.0,
+        ),
+    }
+}
+
+fn get_starting_size(group: &CubeGroup, window: &Window) -> f32 {
+    let longer_side = window.width().max(window.height());
+    match group {
+        CubeGroup::Player => longer_side / 20.,
+        CubeGroup::Enemy => longer_side / 15.,
+        CubeGroup::Neutral => longer_side / 50.,
+    }
+}
+
 #[derive(Bundle)]
 struct CubeBundle {
     group: CubeGroup,
@@ -36,49 +59,52 @@ struct CubeBundle {
 impl CubeBundle {
     fn new(
         group: CubeGroup,
-        position: Vec3,
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
+        window: &Window,
     ) -> Self {
         match group {
             CubeGroup::Player => CubeBundle {
-                group,
-                speed: Speed(10.),
-                direction: Direction(Vec3::X),
                 mesh_bundle: MaterialMesh2dBundle {
                     mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
                     material: materials.add(ColorMaterial::from(Color::BLACK)),
                     transform: Transform::default()
-                        .with_scale(Vec3::splat(30.))
-                        .with_translation(position),
+                        .with_scale(Vec3::splat(get_starting_size(&group, window)))
+                        .with_translation(get_starting_position(&group, window)),
                     ..default()
                 },
-            },
-            CubeGroup::Enemy => CubeBundle {
+
                 group,
                 speed: Speed(10.),
-                direction: Direction(Vec3::Y),
+                direction: Direction(Vec3::X),
+            },
+            CubeGroup::Enemy => CubeBundle {
                 mesh_bundle: MaterialMesh2dBundle {
                     mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
                     material: materials.add(ColorMaterial::from(Color::RED)),
                     transform: Transform::default()
-                        .with_scale(Vec3::splat(30.))
-                        .with_translation(position),
+                        .with_scale(Vec3::splat(get_starting_size(&group, window)))
+                        .with_translation(get_starting_position(&group, window)),
                     ..default()
                 },
+
+                group,
+                speed: Speed(10.),
+                direction: Direction(Vec3::Y),
             },
             CubeGroup::Neutral => CubeBundle {
-                group,
-                speed: Speed(5.),
-                direction: Direction(Vec3::X),
                 mesh_bundle: MaterialMesh2dBundle {
                     mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
                     material: materials.add(ColorMaterial::from(Color::YELLOW)),
                     transform: Transform::default()
-                        .with_scale(Vec3::splat(20.))
-                        .with_translation(position),
+                        .with_scale(Vec3::splat(get_starting_size(&group, window)))
+                        .with_translation(get_starting_position(&group, window)),
                     ..default()
                 },
+
+                group,
+                speed: Speed(5.),
+                direction: Direction(Vec3::X),
             },
         }
     }
@@ -88,24 +114,25 @@ fn spawn_startup_entities(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    window: Res<Windows>,
 ) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands.spawn_bundle(CubeBundle::new(
         CubeGroup::Player,
-        Vec3::new(100., 100., 0.9),
         &mut meshes,
         &mut materials,
+        window.primary(),
     ));
     commands.spawn_bundle(CubeBundle::new(
         CubeGroup::Enemy,
-        Vec3::new(100., 500., 0.9),
         &mut meshes,
         &mut materials,
+        window.primary(),
     ));
     commands.spawn_bundle(CubeBundle::new(
         CubeGroup::Neutral,
-        Vec3::new(20., 300., 0.1),
         &mut meshes,
         &mut materials,
+        window.primary(),
     ));
 }
