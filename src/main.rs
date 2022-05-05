@@ -1,32 +1,6 @@
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use rand::Rng;
+mod physicalentities;
 
-#[derive(Debug, Component, PartialEq, PartialOrd)]
-struct Speed(f32);
-
-#[derive(Debug, Component, PartialEq)]
-struct Direction(Vec3);
-
-#[derive(Debug, Component, PartialEq, Eq, PartialOrd, Ord)]
-enum CubeGroup {
-    Player,
-    Enemy,
-    Neutral,
-}
-
-#[derive(Debug, Component, PartialEq, PartialOrd)]
-enum BallGroup {
-    SpeedBoost(f32),
-    SizeBoost(f32),
-    SpeedDecrease(f32),
-    SizeDecrease(f32),
-}
-
-#[derive(Debug, PartialEq, PartialOrd)]
-enum PhysicalObject<'a> {
-    Cube(&'a CubeGroup),
-    Ball(&'a BallGroup),
-}
+use bevy::prelude::*;
 
 fn main() {
     App::new()
@@ -39,122 +13,6 @@ fn main() {
         .run();
 }
 
-fn get_starting_position(group: PhysicalObject, window: &Window) -> Vec3 {
-    let mut rng = rand::thread_rng();
-    match group {
-        PhysicalObject::Cube(CubeGroup::Player) => Vec3::new(0., -window.height() / 3., 100.0),
-        PhysicalObject::Cube(CubeGroup::Enemy) => Vec3::new(0., window.height() / 3., 99.0),
-        _ => Vec3::new(
-            rng.gen_range((-window.width() / 2.)..window.width() / 2.),
-            rng.gen_range((-window.height() / 2.)..window.height() / 2.),
-            98.0,
-        ),
-    }
-}
-
-fn get_starting_size(group: PhysicalObject, window: &Window) -> f32 {
-    let longer_side = window.width().max(window.height());
-    match group {
-        PhysicalObject::Cube(CubeGroup::Player) => longer_side / 20.,
-        PhysicalObject::Cube(CubeGroup::Enemy) => longer_side / 15.,
-        PhysicalObject::Cube(CubeGroup::Neutral) => longer_side / 50.,
-        PhysicalObject::Ball(_any) => longer_side / 70.,
-    }
-}
-
-fn get_starting_speed(group: PhysicalObject) -> f32 {
-    match group {
-        PhysicalObject::Cube(CubeGroup::Player) => 10.,
-        PhysicalObject::Cube(CubeGroup::Enemy) => 8.,
-        PhysicalObject::Cube(CubeGroup::Neutral) => 8.,
-        PhysicalObject::Ball(_any) => 0.,
-    }
-}
-
-fn get_starting_color(group: PhysicalObject) -> Color {
-    match group {
-        PhysicalObject::Cube(CubeGroup::Player) => Color::PURPLE,
-        PhysicalObject::Cube(CubeGroup::Enemy) => Color::GOLD,
-        PhysicalObject::Cube(CubeGroup::Neutral) => Color::DARK_GRAY,
-        PhysicalObject::Ball(BallGroup::SizeBoost(_) | BallGroup::SpeedBoost(_)) => {
-            Color::LIME_GREEN
-        }
-        PhysicalObject::Ball(BallGroup::SizeDecrease(_) | BallGroup::SpeedDecrease(_)) => {
-            Color::RED
-        }
-    }
-}
-
-#[derive(Bundle)]
-struct CubeBundle {
-    group: CubeGroup,
-    speed: Speed,
-    direction: Direction,
-    #[bundle]
-    mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
-}
-
-#[derive(Bundle)]
-struct BallBundle {
-    group: BallGroup,
-    #[bundle]
-    mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
-}
-
-impl CubeBundle {
-    fn new(
-        group: CubeGroup,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        materials: &mut ResMut<Assets<ColorMaterial>>,
-        window: &Window,
-    ) -> Self {
-        CubeBundle {
-            speed: Speed(get_starting_speed(PhysicalObject::Cube(&group))),
-            direction: Direction(Vec3::Y),
-            mesh_bundle: MaterialMesh2dBundle {
-                mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
-                material: materials.add(ColorMaterial::from(get_starting_color(
-                    PhysicalObject::Cube(&group),
-                ))),
-                transform: Transform::default()
-                    .with_scale(Vec3::splat(get_starting_size(
-                        PhysicalObject::Cube(&group),
-                        window,
-                    )))
-                    .with_translation(get_starting_position(PhysicalObject::Cube(&group), window)),
-                ..default()
-            },
-            group,
-        }
-    }
-}
-
-impl BallBundle {
-    fn new(
-        group: BallGroup,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        materials: &mut ResMut<Assets<ColorMaterial>>,
-        window: &Window,
-    ) -> Self {
-        BallBundle {
-            mesh_bundle: MaterialMesh2dBundle {
-                mesh: meshes.add(Mesh::from(shape::Icosphere::default())).into(),
-                material: materials.add(ColorMaterial::from(get_starting_color(
-                    PhysicalObject::Ball(&group),
-                ))),
-                transform: Transform::default()
-                    .with_scale(Vec3::splat(get_starting_size(
-                        PhysicalObject::Ball(&group),
-                        window,
-                    )))
-                    .with_translation(get_starting_position(PhysicalObject::Ball(&group), window)),
-                ..default()
-            },
-            group,
-        }
-    }
-}
-
 fn spawn_startup_entities(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -162,44 +20,44 @@ fn spawn_startup_entities(
     window: Res<Windows>,
 ) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-    commands.spawn_bundle(CubeBundle::new(
-        CubeGroup::Player,
+    commands.spawn_bundle(physicalentities::CubeBundle::new(
+        physicalentities::CubeGroup::Player,
         &mut meshes,
         &mut materials,
         window.primary(),
     ));
-    commands.spawn_bundle(CubeBundle::new(
-        CubeGroup::Enemy,
+    commands.spawn_bundle(physicalentities::CubeBundle::new(
+        physicalentities::CubeGroup::Enemy,
         &mut meshes,
         &mut materials,
         window.primary(),
     ));
-    commands.spawn_bundle(CubeBundle::new(
-        CubeGroup::Neutral,
+    commands.spawn_bundle(physicalentities::CubeBundle::new(
+        physicalentities::CubeGroup::Neutral,
         &mut meshes,
         &mut materials,
         window.primary(),
     ));
-    commands.spawn_bundle(BallBundle::new(
-        BallGroup::SizeBoost(1.1),
+    commands.spawn_bundle(physicalentities::BallBundle::new(
+        physicalentities::BallGroup::SizeBoost(1.1),
         &mut meshes,
         &mut materials,
         window.primary(),
     ));
-    commands.spawn_bundle(BallBundle::new(
-        BallGroup::SpeedBoost(1.1),
+    commands.spawn_bundle(physicalentities::BallBundle::new(
+        physicalentities::BallGroup::SpeedBoost(1.1),
         &mut meshes,
         &mut materials,
         window.primary(),
     ));
-    commands.spawn_bundle(BallBundle::new(
-        BallGroup::SizeDecrease(1.1),
+    commands.spawn_bundle(physicalentities::BallBundle::new(
+        physicalentities::BallGroup::SizeDecrease(1.1),
         &mut meshes,
         &mut materials,
         window.primary(),
     ));
-    commands.spawn_bundle(BallBundle::new(
-        BallGroup::SpeedDecrease(1.1),
+    commands.spawn_bundle(physicalentities::BallBundle::new(
+        physicalentities::BallGroup::SpeedDecrease(1.1),
         &mut meshes,
         &mut materials,
         window.primary(),
