@@ -59,7 +59,7 @@ fn get_starting_size(group: &CubeGroup, window: &Window) -> f32 {
     }
 }
 
-fn get_starting_speed(group: &CubeGroup, window: &Window) -> f32 {
+fn get_starting_speed(group: &CubeGroup) -> f32 {
     match group {
         CubeGroup::Player => 10.,
         CubeGroup::Enemy => 8.,
@@ -83,49 +83,24 @@ impl CubeBundle {
         materials: &mut ResMut<Assets<ColorMaterial>>,
         window: &Window,
     ) -> Self {
-        match group {
-            CubeGroup::Player => CubeBundle {
-                mesh_bundle: MaterialMesh2dBundle {
-                    mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
-                    material: materials.add(ColorMaterial::from(Color::BLACK)),
-                    transform: Transform::default()
-                        .with_scale(Vec3::splat(get_starting_size(&group, window)))
-                        .with_translation(get_starting_position(&group, window)),
-                    ..default()
-                },
+        let color = match group {
+            CubeGroup::Player => Color::BLACK,
+            CubeGroup::Enemy => Color::RED,
+            CubeGroup::Neutral => Color::ORANGE,
+        };
 
-                speed: Speed(get_starting_speed(&group, window)),
-                direction: Direction(Vec3::X),
-                group,
+        CubeBundle {
+            speed: Speed(get_starting_speed(&group)),
+            direction: Direction(Vec3::Y),
+            mesh_bundle: MaterialMesh2dBundle {
+                mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
+                material: materials.add(ColorMaterial::from(color)),
+                transform: Transform::default()
+                    .with_scale(Vec3::splat(get_starting_size(&group, window)))
+                    .with_translation(get_starting_position(&group, window)),
+                ..default()
             },
-            CubeGroup::Enemy => CubeBundle {
-                mesh_bundle: MaterialMesh2dBundle {
-                    mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
-                    material: materials.add(ColorMaterial::from(Color::RED)),
-                    transform: Transform::default()
-                        .with_scale(Vec3::splat(get_starting_size(&group, window)))
-                        .with_translation(get_starting_position(&group, window)),
-                    ..default()
-                },
-
-                speed: Speed(get_starting_speed(&group, window)),
-                direction: Direction(Vec3::Y),
-                group,
-            },
-            CubeGroup::Neutral => CubeBundle {
-                mesh_bundle: MaterialMesh2dBundle {
-                    mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
-                    material: materials.add(ColorMaterial::from(Color::YELLOW)),
-                    transform: Transform::default()
-                        .with_scale(Vec3::splat(get_starting_size(&group, window)))
-                        .with_translation(get_starting_position(&group, window)),
-                    ..default()
-                },
-
-                speed: Speed(get_starting_speed(&group, window)),
-                direction: Direction(Vec3::X),
-                group,
-            },
+            group,
         }
     }
 }
