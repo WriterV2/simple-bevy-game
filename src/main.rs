@@ -59,6 +59,14 @@ fn get_starting_size(group: &CubeGroup, window: &Window) -> f32 {
     }
 }
 
+fn get_starting_speed(group: &CubeGroup, window: &Window) -> f32 {
+    match group {
+        CubeGroup::Player => 10.,
+        CubeGroup::Enemy => 8.,
+        CubeGroup::Neutral => 8.,
+    }
+}
+
 #[derive(Bundle)]
 struct CubeBundle {
     group: CubeGroup,
@@ -86,9 +94,9 @@ impl CubeBundle {
                     ..default()
                 },
 
-                group,
-                speed: Speed(10.),
+                speed: Speed(get_starting_speed(&group, window)),
                 direction: Direction(Vec3::X),
+                group,
             },
             CubeGroup::Enemy => CubeBundle {
                 mesh_bundle: MaterialMesh2dBundle {
@@ -100,9 +108,9 @@ impl CubeBundle {
                     ..default()
                 },
 
-                group,
-                speed: Speed(10.),
+                speed: Speed(get_starting_speed(&group, window)),
                 direction: Direction(Vec3::Y),
+                group,
             },
             CubeGroup::Neutral => CubeBundle {
                 mesh_bundle: MaterialMesh2dBundle {
@@ -114,9 +122,9 @@ impl CubeBundle {
                     ..default()
                 },
 
-                group,
-                speed: Speed(5.),
+                speed: Speed(get_starting_speed(&group, window)),
                 direction: Direction(Vec3::X),
+                group,
             },
         }
     }
