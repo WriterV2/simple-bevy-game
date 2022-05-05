@@ -71,6 +71,20 @@ fn get_starting_speed(group: PhysicalObject) -> f32 {
     }
 }
 
+fn get_starting_color(group: PhysicalObject) -> Color {
+    match group {
+        PhysicalObject::Cube(CubeGroup::Player) => Color::PURPLE,
+        PhysicalObject::Cube(CubeGroup::Enemy) => Color::GOLD,
+        PhysicalObject::Cube(CubeGroup::Neutral) => Color::DARK_GRAY,
+        PhysicalObject::Ball(BallGroup::SizeBoost(_) | BallGroup::SpeedBoost(_)) => {
+            Color::LIME_GREEN
+        }
+        PhysicalObject::Ball(BallGroup::SizeDecrease(_) | BallGroup::SpeedDecrease(_)) => {
+            Color::RED
+        }
+    }
+}
+
 #[derive(Bundle)]
 struct CubeBundle {
     group: CubeGroup,
@@ -94,18 +108,14 @@ impl CubeBundle {
         materials: &mut ResMut<Assets<ColorMaterial>>,
         window: &Window,
     ) -> Self {
-        let color = match group {
-            CubeGroup::Player => Color::BLACK,
-            CubeGroup::Enemy => Color::RED,
-            CubeGroup::Neutral => Color::ORANGE,
-        };
-
         CubeBundle {
             speed: Speed(get_starting_speed(PhysicalObject::Cube(&group))),
             direction: Direction(Vec3::Y),
             mesh_bundle: MaterialMesh2dBundle {
                 mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
-                material: materials.add(ColorMaterial::from(color)),
+                material: materials.add(ColorMaterial::from(get_starting_color(
+                    PhysicalObject::Cube(&group),
+                ))),
                 transform: Transform::default()
                     .with_scale(Vec3::splat(get_starting_size(
                         PhysicalObject::Cube(&group),
@@ -129,7 +139,9 @@ impl BallBundle {
         BallBundle {
             mesh_bundle: MaterialMesh2dBundle {
                 mesh: meshes.add(Mesh::from(shape::Icosphere::default())).into(),
-                material: materials.add(ColorMaterial::from(Color::YELLOW_GREEN)),
+                material: materials.add(ColorMaterial::from(get_starting_color(
+                    PhysicalObject::Ball(&group),
+                ))),
                 transform: Transform::default()
                     .with_scale(Vec3::splat(get_starting_size(
                         PhysicalObject::Ball(&group),
