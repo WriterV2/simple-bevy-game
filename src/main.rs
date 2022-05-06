@@ -12,6 +12,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(spawn_startup_entities)
         .add_system(movement::movement)
+        .add_system(movement::switch_direction)
         .run();
 }
 
