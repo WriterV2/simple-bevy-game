@@ -1,3 +1,4 @@
+mod movement;
 mod physicalentities;
 
 use bevy::prelude::*;
@@ -10,6 +11,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_startup_system(spawn_startup_entities)
+        .add_system(movement::movement)
         .run();
 }
 

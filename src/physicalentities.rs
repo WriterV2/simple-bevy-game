@@ -61,9 +61,9 @@ fn get_starting_size(group: PhysicalEntity, window: &Window) -> f32 {
 // helper to get starting speed based on physical object's group
 fn get_starting_speed(group: PhysicalEntity) -> f32 {
     match group {
-        PhysicalEntity::Cube(CubeGroup::Player) => 10.,
-        PhysicalEntity::Cube(CubeGroup::Enemy) => 8.,
-        PhysicalEntity::Cube(CubeGroup::Neutral) => 8.,
+        PhysicalEntity::Cube(CubeGroup::Player) => 5.,
+        PhysicalEntity::Cube(CubeGroup::Enemy) => 4.,
+        PhysicalEntity::Cube(CubeGroup::Neutral) => 4.,
         PhysicalEntity::Ball(_any) => 0.,
     }
 }
