@@ -8,9 +8,22 @@ pub fn movement(
         &crate::physicalentities::Speed,
         &crate::physicalentities::Direction,
     )>,
+    window: Res<Windows>,
 ) {
     for (mut transform, speed, direction) in query.iter_mut() {
-        transform.translation += direction.0 * speed.0;
+        // move entity in direction with its speed
+        // when entity hits the window edge, it comes out of the opposite side
+        if transform.translation.x >= window.primary().width() / 2. {
+            transform.translation.x = -window.primary().width() / 2. + 1.;
+        } else if transform.translation.x < -(window.primary().width() / 2.) {
+            transform.translation.x = window.primary().width() / 2. - 1.;
+        } else if transform.translation.y >= window.primary().height() / 2. {
+            transform.translation.y = -window.primary().height() / 2. + 1.;
+        } else if transform.translation.y < -(window.primary().height() / 2.) {
+            transform.translation.y = window.primary().height() / 2. - 1.;
+        } else {
+            transform.translation += direction.0 * speed.0;
+        }
     }
 }
 
