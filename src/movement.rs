@@ -22,17 +22,68 @@ pub fn switch_direction(
     mut query: Query<(
         &mut crate::physicalentities::Direction,
         &crate::physicalentities::CubeGroup,
+        &Transform,
     )>,
     keys: Res<Input<KeyCode>>,
 ) {
-    for (mut direction, group) in query.iter_mut() {
+    // get enemy cube's position
+    let enemy_position = if let Some(pos) = query
+        .iter()
+        .find(|x| x.1 == &crate::physicalentities::CubeGroup::Enemy)
+    {
+        pos.2.translation
+    } else {
+        panic!("Enemy not found - fn switch_direction");
+    };
+
+    // get all neutral cubes' positions
+    let neutral_cubes_positions: Vec<Vec3> = query
+        .iter()
+        .filter(|x| x.1 == &crate::physicalentities::CubeGroup::Neutral)
+        .map(|x| x.2.translation)
+        .collect();
+
+    // euclidean distance between enemy and nearest neutral cube
+    let mut nearest_distance = f32::MAX;
+    // difference of enemy position's x and nearest neutral cube's x
+    let mut nearest_distance_x = f32::MAX;
+    // difference of enemy position's y and nearest neutral cube's y
+    let mut nearest_distance_y = f32::MAX;
+
+    for (mut direction, group, _transform) in query.iter_mut() {
         match group {
             crate::physicalentities::CubeGroup::Player => {
                 if let Some(input) = player_input_direction(&keys) {
                     *direction = crate::physicalentities::Direction(input);
                 }
             }
-            crate::physicalentities::CubeGroup::Enemy => {}
+            crate::physicalentities::CubeGroup::Enemy => {
+                // get the distance between the enemy and the nearest cube
+                for neutral_position in &neutral_cubes_positions {
+                    if nearest_distance.min(neutral_position.distance(enemy_position))
+                        != nearest_distance
+                    {
+                        nearest_distance = neutral_position.distance(enemy_position);
+                        nearest_distance_x = enemy_position.x - neutral_position.x;
+                        nearest_distance_y = enemy_position.y - neutral_position.y;
+                    }
+                }
+
+                // enemy follows the nearest cube on the axis with the longest distance
+                *direction = if nearest_distance_x.abs() > nearest_distance_y.abs() {
+                    if nearest_distance_x.is_sign_negative() {
+                        crate::physicalentities::Direction(Vec3::X)
+                    } else {
+                        crate::physicalentities::Direction(-Vec3::X)
+                    }
+                } else {
+                    if nearest_distance_y.is_sign_negative() {
+                        crate::physicalentities::Direction(Vec3::Y)
+                    } else {
+                        crate::physicalentities::Direction(-Vec3::Y)
+                    }
+                };
+            }
             crate::physicalentities::CubeGroup::Neutral => {}
         }
     }
