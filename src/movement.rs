@@ -67,8 +67,9 @@ pub fn switch_direction(
     for (mut direction, group, _transform) in query.iter_mut() {
         match group {
             crate::physicalentities::CubeGroup::Player => {
+                // switch player direction based on input (WASD / arrow keys)
                 if let Some(input) = player_input_direction(&keys) {
-                    *direction = crate::physicalentities::Direction(input);
+                    *direction = input;
                 }
             }
             crate::physicalentities::CubeGroup::Enemy => {
@@ -114,15 +115,17 @@ pub fn switch_direction(
 }
 
 // change player direction with input: WASD / arrow keys
-fn player_input_direction(keys: &Res<Input<KeyCode>>) -> Option<Vec3> {
+fn player_input_direction(
+    keys: &Res<Input<KeyCode>>,
+) -> Option<crate::physicalentities::Direction> {
     if keys.just_pressed(KeyCode::A) || keys.just_pressed(KeyCode::Left) {
-        Some(-Vec3::X)
+        Some(crate::physicalentities::Direction(-Vec3::X))
     } else if keys.just_pressed(KeyCode::D) || keys.just_pressed(KeyCode::Right) {
-        Some(Vec3::X)
+        Some(crate::physicalentities::Direction(Vec3::X))
     } else if keys.just_pressed(KeyCode::W) || keys.just_pressed(KeyCode::Up) {
-        Some(Vec3::Y)
+        Some(crate::physicalentities::Direction(Vec3::Y))
     } else if keys.just_pressed(KeyCode::S) || keys.just_pressed(KeyCode::Down) {
-        Some(-Vec3::Y)
+        Some(crate::physicalentities::Direction(-Vec3::Y))
     } else {
         None
     }
