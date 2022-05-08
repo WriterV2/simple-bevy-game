@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use rand::Rng;
 
 // every entity with a position, speed and direction moves in specified direction with
 // specified speed
@@ -97,7 +98,17 @@ pub fn switch_direction(
                     }
                 };
             }
-            crate::physicalentities::CubeGroup::Neutral => {}
+            // choose neutral cube's direction randomly
+            crate::physicalentities::CubeGroup::Neutral => {
+                let rng = rand::thread_rng().gen_range(0..=3);
+                *direction = crate::physicalentities::Direction(match rng {
+                    0 => Vec3::X,
+                    1 => -Vec3::X,
+                    2 => Vec3::Y,
+                    3 => -Vec3::Y,
+                    _ => unreachable!(),
+                });
+            }
         }
     }
 }
