@@ -156,3 +156,28 @@ impl BallBundle {
         }
     }
 }
+
+pub fn spawn_balls(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    window: Res<Windows>,
+) {
+    if rand::thread_rng().gen_ratio(1, 100) {
+        let boost_value = rand::thread_rng().gen_range(1.1..2.);
+        let group = match rand::thread_rng().gen_range(0..=3) {
+            0 => BallGroup::SizeBoost(boost_value),
+            1 => BallGroup::SizeDecrease(boost_value),
+            2 => BallGroup::SpeedBoost(boost_value),
+            3 => BallGroup::SpeedDecrease(boost_value),
+            _ => unreachable!(),
+        };
+
+        commands.spawn_bundle(BallBundle::new(
+            group,
+            &mut meshes,
+            &mut materials,
+            window.primary(),
+        ));
+    }
+}

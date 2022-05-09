@@ -13,6 +13,7 @@ fn main() {
         .add_startup_system(spawn_startup_entities)
         .add_system(movement::movement)
         .add_system(movement::switch_direction)
+        .add_system(physicalentities::spawn_balls)
         .run();
 }
 
@@ -37,30 +38,6 @@ fn spawn_startup_entities(
     ));
     commands.spawn_bundle(physicalentities::CubeBundle::new(
         physicalentities::CubeGroup::Neutral,
-        &mut meshes,
-        &mut materials,
-        window.primary(),
-    ));
-    commands.spawn_bundle(physicalentities::BallBundle::new(
-        physicalentities::BallGroup::SizeBoost(1.1),
-        &mut meshes,
-        &mut materials,
-        window.primary(),
-    ));
-    commands.spawn_bundle(physicalentities::BallBundle::new(
-        physicalentities::BallGroup::SpeedBoost(1.1),
-        &mut meshes,
-        &mut materials,
-        window.primary(),
-    ));
-    commands.spawn_bundle(physicalentities::BallBundle::new(
-        physicalentities::BallGroup::SizeDecrease(1.1),
-        &mut meshes,
-        &mut materials,
-        window.primary(),
-    ));
-    commands.spawn_bundle(physicalentities::BallBundle::new(
-        physicalentities::BallGroup::SpeedDecrease(1.1),
         &mut meshes,
         &mut materials,
         window.primary(),
