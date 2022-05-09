@@ -74,42 +74,46 @@ pub fn switch_direction(
                 }
             }
             crate::physicalentities::CubeGroup::Enemy => {
-                // get the distance between the enemy and the nearest cube
-                for neutral_position in &neutral_cubes_positions {
-                    if nearest_distance.min(neutral_position.distance(enemy_position))
-                        != nearest_distance
-                    {
-                        nearest_distance = neutral_position.distance(enemy_position);
-                        nearest_distance_x = enemy_position.x - neutral_position.x;
-                        nearest_distance_y = enemy_position.y - neutral_position.y;
+                if rand::thread_rng().gen_ratio(5, 100) {
+                    // get the distance between the enemy and the nearest cube
+                    for neutral_position in &neutral_cubes_positions {
+                        if nearest_distance.min(neutral_position.distance(enemy_position))
+                            != nearest_distance
+                        {
+                            nearest_distance = neutral_position.distance(enemy_position);
+                            nearest_distance_x = enemy_position.x - neutral_position.x;
+                            nearest_distance_y = enemy_position.y - neutral_position.y;
+                        }
                     }
-                }
 
-                // enemy follows the nearest cube on the axis with the longest distance
-                *direction = if nearest_distance_x.abs() > nearest_distance_y.abs() {
-                    if nearest_distance_x.is_sign_negative() {
-                        crate::physicalentities::Direction(Vec3::X)
+                    // enemy follows the nearest cube on the axis with the longest distance
+                    *direction = if nearest_distance_x.abs() > nearest_distance_y.abs() {
+                        if nearest_distance_x.is_sign_negative() {
+                            crate::physicalentities::Direction(Vec3::X)
+                        } else {
+                            crate::physicalentities::Direction(-Vec3::X)
+                        }
                     } else {
-                        crate::physicalentities::Direction(-Vec3::X)
-                    }
-                } else {
-                    if nearest_distance_y.is_sign_negative() {
-                        crate::physicalentities::Direction(Vec3::Y)
-                    } else {
-                        crate::physicalentities::Direction(-Vec3::Y)
-                    }
-                };
+                        if nearest_distance_y.is_sign_negative() {
+                            crate::physicalentities::Direction(Vec3::Y)
+                        } else {
+                            crate::physicalentities::Direction(-Vec3::Y)
+                        }
+                    };
+                }
             }
             // choose neutral cube's direction randomly
             crate::physicalentities::CubeGroup::Neutral => {
-                let rng = rand::thread_rng().gen_range(0..=3);
-                *direction = crate::physicalentities::Direction(match rng {
-                    0 => Vec3::X,
-                    1 => -Vec3::X,
-                    2 => Vec3::Y,
-                    3 => -Vec3::Y,
-                    _ => unreachable!(),
-                });
+                if rand::thread_rng().gen_ratio(3, 100) {
+                    let rng = rand::thread_rng().gen_range(0..=3);
+                    *direction = crate::physicalentities::Direction(match rng {
+                        0 => Vec3::X,
+                        1 => -Vec3::X,
+                        2 => Vec3::Y,
+                        3 => -Vec3::Y,
+                        _ => unreachable!(),
+                    });
+                }
             }
         }
     }
