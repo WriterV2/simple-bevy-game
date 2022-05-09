@@ -10,6 +10,7 @@ pub fn movement(
         &crate::physicalentities::Direction,
     )>,
     window: Res<Windows>,
+    time: Res<Time>,
 ) {
     for (mut transform, speed, direction) in query.iter_mut() {
         // move entity in direction with its speed
@@ -23,7 +24,7 @@ pub fn movement(
         } else if transform.translation.y < -(window.primary().height() / 2.) {
             transform.translation.y = window.primary().height() / 2. - 1.;
         } else {
-            transform.translation += direction.0 * speed.0;
+            transform.translation += direction.0 * speed.0 * time.delta_seconds();
         }
     }
 }
