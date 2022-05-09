@@ -128,6 +128,17 @@ impl CubeBundle {
             group,
         }
     }
+
+    pub fn spawn_neutral_cubes(
+        commands: &mut Commands,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
+        window: &Window,
+    ) {
+        for _ in 0..rand::thread_rng().gen_range(10..=20) {
+            commands.spawn_bundle(Self::new(CubeGroup::Neutral, meshes, materials, window));
+        }
+    }
 }
 
 impl BallBundle {

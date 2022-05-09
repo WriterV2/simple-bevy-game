@@ -36,10 +36,10 @@ fn spawn_startup_entities(
         &mut materials,
         window.primary(),
     ));
-    commands.spawn_bundle(physicalentities::CubeBundle::new(
-        physicalentities::CubeGroup::Neutral,
+    physicalentities::CubeBundle::spawn_neutral_cubes(
+        &mut commands,
         &mut meshes,
         &mut materials,
         window.primary(),
-    ));
+    );
 }
