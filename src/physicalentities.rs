@@ -263,6 +263,30 @@ impl Neutral {
     }
 }
 
+impl Default for SpeedBoost {
+    fn default() -> Self {
+        Self(rand::thread_rng().gen_range(1.1..=2.))
+    }
+}
+
+impl Default for SizeBoost {
+    fn default() -> Self {
+        Self(rand::thread_rng().gen_range(1.1..=2.))
+    }
+}
+
+impl Default for SpeedDecrease {
+    fn default() -> Self {
+        Self(rand::thread_rng().gen_range(1.1..=2.))
+    }
+}
+
+impl Default for SizeDecrease {
+    fn default() -> Self {
+        Self(rand::thread_rng().gen_range(1.1..=2.))
+    }
+}
+
 // type of ball player and enemy can consume
 #[derive(Debug, Component, PartialEq, PartialOrd)]
 pub enum BallGroup {
@@ -421,20 +445,32 @@ pub fn spawn_balls(
     window: Res<Windows>,
 ) {
     if rand::thread_rng().gen_ratio(1, 100) {
-        let boost_value = rand::thread_rng().gen_range(1.1..2.);
-        let group = match rand::thread_rng().gen_range(0..=3) {
-            0 => BallGroup::SizeBoost(boost_value),
-            1 => BallGroup::SizeDecrease(boost_value),
-            2 => BallGroup::SpeedBoost(boost_value),
-            3 => BallGroup::SpeedDecrease(boost_value),
+        match rand::thread_rng().gen_range(0..=3) {
+            0 => SpeedBoost::default().spawn(
+                &mut commands,
+                &mut meshes,
+                &mut materials,
+                window.primary(),
+            ),
+            1 => SizeBoost::default().spawn(
+                &mut commands,
+                &mut meshes,
+                &mut materials,
+                window.primary(),
+            ),
+            2 => SpeedDecrease::default().spawn(
+                &mut commands,
+                &mut meshes,
+                &mut materials,
+                window.primary(),
+            ),
+            3 => SizeDecrease::default().spawn(
+                &mut commands,
+                &mut meshes,
+                &mut materials,
+                window.primary(),
+            ),
             _ => unreachable!(),
         };
-
-        commands.spawn_bundle(BallBundle::new(
-            group,
-            &mut meshes,
-            &mut materials,
-            window.primary(),
-        ));
     }
 }
