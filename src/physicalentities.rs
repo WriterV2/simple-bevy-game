@@ -46,10 +46,19 @@ pub struct SpeedDecrease(pub f32);
 pub struct SizeDecrease(pub f32);
 
 // moving entitiy with cube form
-pub trait Cube {}
+pub trait Cube: GameEntity {}
 
 // boost/decrease entity with a ball form
-pub trait Ball {}
+pub trait Ball: GameEntity {}
+
+// every in-game entity
+pub trait GameEntity {
+    fn set_starting_position(window: &Window) -> Vec3;
+
+    fn set_starting_size(window: &Window) -> f32;
+
+    fn get_starting_color() -> Color;
+}
 
 // type of ball player and enemy can consume
 #[derive(Debug, Component, PartialEq, PartialOrd)]
