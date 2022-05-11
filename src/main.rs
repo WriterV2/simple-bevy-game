@@ -2,6 +2,8 @@ mod movement;
 mod physicalentities;
 
 use bevy::prelude::*;
+use physicalentities::Cube;
+use rand::Rng;
 
 fn main() {
     App::new()
@@ -11,8 +13,8 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_startup_system(spawn_startup_entities)
-        .add_system(movement::movement)
-        .add_system(movement::switch_direction)
+        //.add_system(movement::movement)
+        //.add_system(movement::switch_direction)
         .add_system(physicalentities::spawn_balls)
         .run();
 }
@@ -23,23 +25,17 @@ fn spawn_startup_entities(
     mut materials: ResMut<Assets<ColorMaterial>>,
     window: Res<Windows>,
 ) {
+    let player = physicalentities::Player;
+    let enemy = physicalentities::Enemy;
+
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-    commands.spawn_bundle(physicalentities::CubeBundle::new(
-        physicalentities::CubeGroup::Player,
-        &mut meshes,
-        &mut materials,
-        window.primary(),
-    ));
-    commands.spawn_bundle(physicalentities::CubeBundle::new(
-        physicalentities::CubeGroup::Enemy,
-        &mut meshes,
-        &mut materials,
-        window.primary(),
-    ));
-    physicalentities::CubeBundle::spawn_neutral_cubes(
+    player.spawn(&mut commands, &mut meshes, &mut materials, window.primary());
+    enemy.spawn(&mut commands, &mut meshes, &mut materials, window.primary());
+    physicalentities::Neutral::spawn_neutral_cubes(
         &mut commands,
         &mut meshes,
         &mut materials,
         window.primary(),
+        rand::thread_rng().gen_range(10..20),
     );
 }
