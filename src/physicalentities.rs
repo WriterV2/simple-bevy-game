@@ -222,6 +222,24 @@ impl GameEntity for SizeDecrease {
     }
 }
 
+impl Cube for Player {
+    fn set_starting_speed() -> f32 {
+        100.
+    }
+}
+
+impl Cube for Enemy {
+    fn set_starting_speed() -> f32 {
+        90.
+    }
+}
+
+impl Cube for Neutral {
+    fn set_starting_speed() -> f32 {
+        90.
+    }
+}
+
 // type of ball player and enemy can consume
 #[derive(Debug, Component, PartialEq, PartialOrd)]
 pub enum BallGroup {
