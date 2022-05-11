@@ -88,6 +88,24 @@ impl GameEntity for Enemy {
     }
 }
 
+impl GameEntity for Neutral {
+    fn set_starting_position(window: &Window) -> Vec3 {
+        Vec3::new(
+            rand::thread_rng().gen_range((-window.width() / 2.)..window.width() / 2.),
+            rand::thread_rng().gen_range((-window.height() / 2.)..window.height() / 2.),
+            98.0,
+        )
+    }
+
+    fn set_starting_size(window: &Window) -> f32 {
+        window.width().max(window.height()) / 50.
+    }
+
+    fn set_starting_color() -> Color {
+        Color::DARK_GRAY
+    }
+}
+
 // type of ball player and enemy can consume
 #[derive(Debug, Component, PartialEq, PartialOrd)]
 pub enum BallGroup {
