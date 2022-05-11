@@ -17,6 +17,40 @@ pub enum CubeGroup {
     Neutral,
 }
 
+// player cube component
+#[derive(Debug, Component)]
+pub struct Player;
+
+// enemy cube component
+#[derive(Debug, Component)]
+pub struct Enemy;
+
+// neutral cube component
+#[derive(Debug, Component)]
+pub struct Neutral;
+
+// speed boost ball component
+#[derive(Debug, Component)]
+pub struct SpeedBoost(pub f32);
+
+// size boost ball component
+#[derive(Debug, Component)]
+pub struct SizeBoost(pub f32);
+
+// speed decrease ball component
+#[derive(Debug, Component)]
+pub struct SpeedDecrease(pub f32);
+
+// size decrease ball component
+#[derive(Debug, Component)]
+pub struct SizeDecrease(pub f32);
+
+// moving entitiy with cube form
+pub trait Cube {}
+
+// boost/decrease entity with a ball form
+pub trait Ball {}
+
 // type of ball player and enemy can consume
 #[derive(Debug, Component, PartialEq, PartialOrd)]
 pub enum BallGroup {
