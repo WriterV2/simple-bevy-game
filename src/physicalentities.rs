@@ -26,23 +26,23 @@ pub struct Player;
 pub struct Enemy;
 
 // neutral cube component
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone)]
 pub struct Neutral;
 
 // speed boost ball component
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone)]
 pub struct SpeedBoost(pub f32);
 
 // size boost ball component
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone)]
 pub struct SizeBoost(pub f32);
 
 // speed decrease ball component
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone)]
 pub struct SpeedDecrease(pub f32);
 
 // size decrease ball component
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Clone)]
 pub struct SizeDecrease(pub f32);
 
 // moving entitiy with cube form
@@ -247,6 +247,21 @@ impl Ball for SizeBoost {}
 impl Ball for SpeedDecrease {}
 
 impl Ball for SizeDecrease {}
+
+impl Neutral {
+    pub fn spawn_neutral_cubes(
+        commands: &mut Commands,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
+        window: &Window,
+        number_of_cubes: i32,
+    ) {
+        let neutral_cubes = vec![Self; number_of_cubes as usize];
+        for cube in neutral_cubes {
+            cube.spawn(commands, meshes, materials, window)
+        }
+    }
+}
 
 // type of ball player and enemy can consume
 #[derive(Debug, Component, PartialEq, PartialOrd)]
