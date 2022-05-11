@@ -73,7 +73,27 @@ pub trait Cube: GameEntity {
 }
 
 // boost/decrease entity with a ball form
-pub trait Ball: GameEntity {}
+pub trait Ball: GameEntity {
+    fn spawn(
+        self,
+        commands: &mut Commands,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
+        window: &Window,
+    ) {
+        commands
+            .spawn()
+            .insert(self)
+            .insert_bundle(MaterialMesh2dBundle {
+                mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
+                material: materials.add(ColorMaterial::from(Self::set_starting_color())),
+                transform: Transform::default()
+                    .with_scale(Vec3::splat(Self::set_starting_size(window)))
+                    .with_translation(Self::set_starting_position(window)),
+                ..default()
+            });
+    }
+}
 
 // every in-game entity
 pub trait GameEntity: Component + Sized {
