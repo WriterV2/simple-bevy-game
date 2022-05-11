@@ -57,7 +57,21 @@ pub trait GameEntity {
 
     fn set_starting_size(window: &Window) -> f32;
 
-    fn get_starting_color() -> Color;
+    fn set_starting_color() -> Color;
+}
+
+impl GameEntity for Player {
+    fn set_starting_position(window: &Window) -> Vec3 {
+        Vec3::new(0., -window.height() / 3., 100.0)
+    }
+
+    fn set_starting_size(window: &Window) -> f32 {
+        window.width().max(window.height()) / 20.
+    }
+
+    fn set_starting_color() -> Color {
+        Color::PURPLE
+    }
 }
 
 // type of ball player and enemy can consume
