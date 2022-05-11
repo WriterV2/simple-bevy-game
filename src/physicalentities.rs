@@ -85,7 +85,7 @@ pub trait Ball: GameEntity {
             .spawn()
             .insert(self)
             .insert_bundle(MaterialMesh2dBundle {
-                mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
+                mesh: meshes.add(Mesh::from(shape::Icosphere::default())).into(),
                 material: materials.add(ColorMaterial::from(Self::set_starting_color())),
                 transform: Transform::default()
                     .with_scale(Vec3::splat(Self::set_starting_size(window)))
