@@ -13,7 +13,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_startup_system(spawn_startup_entities)
-        //.add_system(movement::movement)
+        .add_plugin(movement::Movement)
         //.add_system(movement::switch_direction)
         .add_system(physicalentities::spawn_balls)
         .run();

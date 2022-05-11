@@ -1,14 +1,26 @@
 use bevy::prelude::*;
 use rand::Rng;
 
+pub struct Movement;
+impl Plugin for Movement {
+    fn build(&self, app: &mut App) {
+        app.add_system(movement::<crate::physicalentities::Player>)
+            .add_system(movement::<crate::physicalentities::Enemy>)
+            .add_system(movement::<crate::physicalentities::Neutral>);
+    }
+}
+
 // every entity with a position, speed and direction moves in specified direction with
 // specified speed
-pub fn movement(
-    mut query: Query<(
-        &mut Transform,
-        &crate::physicalentities::Speed,
-        &crate::physicalentities::Direction,
-    )>,
+fn movement<T: crate::physicalentities::Cube>(
+    mut query: Query<
+        (
+            &mut Transform,
+            &crate::physicalentities::Speed,
+            &crate::physicalentities::Direction,
+        ),
+        With<T>,
+    >,
     window: Res<Windows>,
     time: Res<Time>,
 ) {
@@ -33,7 +45,7 @@ pub fn movement(
 // player: key input
 // enemy: looking for nearest cube
 // neutral: randomly
-pub fn switch_direction(
+fn switch_direction(
     mut query: Query<(
         &mut crate::physicalentities::Direction,
         &crate::physicalentities::CubeGroup,
