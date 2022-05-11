@@ -46,13 +46,37 @@ pub struct SpeedDecrease(pub f32);
 pub struct SizeDecrease(pub f32);
 
 // moving entitiy with cube form
-pub trait Cube: GameEntity {}
+pub trait Cube: GameEntity {
+    fn spawn(
+        self,
+        commands: &mut Commands,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
+        window: &Window,
+    ) {
+        commands
+            .spawn()
+            .insert(self)
+            .insert(Direction(Vec3::Y))
+            .insert(Speed(Self::set_starting_speed()))
+            .insert_bundle(MaterialMesh2dBundle {
+                mesh: meshes.add(Mesh::from(shape::Cube::default())).into(),
+                material: materials.add(ColorMaterial::from(Self::set_starting_color())),
+                transform: Transform::default()
+                    .with_scale(Vec3::splat(Self::set_starting_size(window)))
+                    .with_translation(Self::set_starting_position(window)),
+                ..default()
+            });
+    }
+
+    fn set_starting_speed() -> f32;
+}
 
 // boost/decrease entity with a ball form
 pub trait Ball: GameEntity {}
 
 // every in-game entity
-pub trait GameEntity {
+pub trait GameEntity: Component + Sized {
     fn set_starting_position(window: &Window) -> Vec3;
 
     fn set_starting_size(window: &Window) -> f32;
