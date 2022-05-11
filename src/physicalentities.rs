@@ -106,6 +106,78 @@ impl GameEntity for Neutral {
     }
 }
 
+impl GameEntity for SpeedBoost {
+    fn set_starting_position(window: &Window) -> Vec3 {
+        Vec3::new(
+            rand::thread_rng().gen_range((-window.width() / 2.)..window.width() / 2.),
+            rand::thread_rng().gen_range((-window.height() / 2.)..window.height() / 2.),
+            98.0,
+        )
+    }
+
+    fn set_starting_size(window: &Window) -> f32 {
+        window.width().max(window.height()) / 70.
+    }
+
+    fn set_starting_color() -> Color {
+        Color::LIME_GREEN
+    }
+}
+
+impl GameEntity for SizeBoost {
+    fn set_starting_position(window: &Window) -> Vec3 {
+        Vec3::new(
+            rand::thread_rng().gen_range((-window.width() / 2.)..window.width() / 2.),
+            rand::thread_rng().gen_range((-window.height() / 2.)..window.height() / 2.),
+            98.0,
+        )
+    }
+
+    fn set_starting_size(window: &Window) -> f32 {
+        window.width().max(window.height()) / 70.
+    }
+
+    fn set_starting_color() -> Color {
+        Color::LIME_GREEN
+    }
+}
+
+impl GameEntity for SpeedDecrease {
+    fn set_starting_position(window: &Window) -> Vec3 {
+        Vec3::new(
+            rand::thread_rng().gen_range((-window.width() / 2.)..window.width() / 2.),
+            rand::thread_rng().gen_range((-window.height() / 2.)..window.height() / 2.),
+            98.0,
+        )
+    }
+
+    fn set_starting_size(window: &Window) -> f32 {
+        window.width().max(window.height()) / 70.
+    }
+
+    fn set_starting_color() -> Color {
+        Color::RED
+    }
+}
+
+impl GameEntity for SizeDecrease {
+    fn set_starting_position(window: &Window) -> Vec3 {
+        Vec3::new(
+            rand::thread_rng().gen_range((-window.width() / 2.)..window.width() / 2.),
+            rand::thread_rng().gen_range((-window.height() / 2.)..window.height() / 2.),
+            98.0,
+        )
+    }
+
+    fn set_starting_size(window: &Window) -> f32 {
+        window.width().max(window.height()) / 70.
+    }
+
+    fn set_starting_color() -> Color {
+        Color::RED
+    }
+}
+
 // type of ball player and enemy can consume
 #[derive(Debug, Component, PartialEq, PartialOrd)]
 pub enum BallGroup {
