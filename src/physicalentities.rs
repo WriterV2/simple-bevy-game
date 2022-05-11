@@ -240,6 +240,14 @@ impl Cube for Neutral {
     }
 }
 
+impl Ball for SpeedBoost {}
+
+impl Ball for SizeBoost {}
+
+impl Ball for SpeedDecrease {}
+
+impl Ball for SizeDecrease {}
+
 // type of ball player and enemy can consume
 #[derive(Debug, Component, PartialEq, PartialOrd)]
 pub enum BallGroup {
