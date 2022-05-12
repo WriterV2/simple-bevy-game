@@ -1,12 +1,14 @@
 use bevy::prelude::*;
-//use rand::Rng;
 
 pub struct Movement;
 impl Plugin for Movement {
     fn build(&self, app: &mut App) {
         app.add_system(movement::<crate::physicalentities::Player>)
             .add_system(movement::<crate::physicalentities::Enemy>)
-            .add_system(movement::<crate::physicalentities::Neutral>);
+            .add_system(movement::<crate::physicalentities::Neutral>)
+            .add_system(switch_direction::<crate::physicalentities::Player>)
+            .add_system(switch_direction::<crate::physicalentities::Enemy>)
+            .add_system(switch_direction::<crate::physicalentities::Neutral>);
     }
 }
 
@@ -45,105 +47,16 @@ fn movement<T: crate::physicalentities::Cube>(
 // player: key input
 // enemy: looking for nearest cube
 // neutral: randomly
-//fn switch_direction(
-//    mut query: Query<(
-//        &mut crate::physicalentities::Direction,
-//        &crate::physicalentities::CubeGroup,
-//        &Transform,
-//    )>,
-//    keys: Res<Input<KeyCode>>,
-//) {
-//    // get enemy cube's position
-//    let enemy_position = if let Some(pos) = query
-//        .iter()
-//        .find(|x| x.1 == &crate::physicalentities::CubeGroup::Enemy)
-//    {
-//        pos.2.translation
-//    } else {
-//        panic!("Enemy not found - fn switch_direction");
-//    };
-//
-//    // get all neutral cubes' positions
-//    let neutral_cubes_positions: Vec<Vec3> = query
-//        .iter()
-//        .filter(|x| x.1 == &crate::physicalentities::CubeGroup::Neutral)
-//        .map(|x| x.2.translation)
-//        .collect();
-//
-//    // euclidean distance between enemy and nearest neutral cube
-//    let mut nearest_distance = f32::MAX;
-//    // difference of enemy position's x and nearest neutral cube's x
-//    let mut nearest_distance_x = f32::MAX;
-//    // difference of enemy position's y and nearest neutral cube's y
-//    let mut nearest_distance_y = f32::MAX;
-//
-//    for (mut direction, group, _transform) in query.iter_mut() {
-//        match group {
-//            crate::physicalentities::CubeGroup::Player => {
-//                // switch player direction based on input (WASD / arrow keys)
-//                if let Some(input) = player_input_direction(&keys) {
-//                    *direction = input;
-//                }
-//            }
-//            crate::physicalentities::CubeGroup::Enemy => {
-//                if rand::thread_rng().gen_ratio(5, 100) {
-//                    // get the distance between the enemy and the nearest cube
-//                    for neutral_position in &neutral_cubes_positions {
-//                        if nearest_distance.min(neutral_position.distance(enemy_position))
-//                            != nearest_distance
-//                        {
-//                            nearest_distance = neutral_position.distance(enemy_position);
-//                            nearest_distance_x = enemy_position.x - neutral_position.x;
-//                            nearest_distance_y = enemy_position.y - neutral_position.y;
-//                        }
-//                    }
-//
-//                    // enemy follows the nearest cube on the axis with the longest distance
-//                    *direction = if nearest_distance_x.abs() > nearest_distance_y.abs() {
-//                        if nearest_distance_x.is_sign_negative() {
-//                            crate::physicalentities::Direction(Vec3::X)
-//                        } else {
-//                            crate::physicalentities::Direction(-Vec3::X)
-//                        }
-//                    } else {
-//                        if nearest_distance_y.is_sign_negative() {
-//                            crate::physicalentities::Direction(Vec3::Y)
-//                        } else {
-//                            crate::physicalentities::Direction(-Vec3::Y)
-//                        }
-//                    };
-//                }
-//            }
-//            // choose neutral cube's direction randomly
-//            crate::physicalentities::CubeGroup::Neutral => {
-//                if rand::thread_rng().gen_ratio(3, 100) {
-//                    let rng = rand::thread_rng().gen_range(0..=3);
-//                    *direction = crate::physicalentities::Direction(match rng {
-//                        0 => Vec3::X,
-//                        1 => -Vec3::X,
-//                        2 => Vec3::Y,
-//                        3 => -Vec3::Y,
-//                        _ => unreachable!(),
-//                    });
-//                }
-//            }
-//        }
-//    }
-//}
-//
-// change player direction with input: WASD / arrow keys
-fn _player_input_direction(
-    keys: &Res<Input<KeyCode>>,
-) -> Option<crate::physicalentities::Direction> {
-    if keys.just_pressed(KeyCode::A) || keys.just_pressed(KeyCode::Left) {
-        Some(crate::physicalentities::Direction(-Vec3::X))
-    } else if keys.just_pressed(KeyCode::D) || keys.just_pressed(KeyCode::Right) {
-        Some(crate::physicalentities::Direction(Vec3::X))
-    } else if keys.just_pressed(KeyCode::W) || keys.just_pressed(KeyCode::Up) {
-        Some(crate::physicalentities::Direction(Vec3::Y))
-    } else if keys.just_pressed(KeyCode::S) || keys.just_pressed(KeyCode::Down) {
-        Some(crate::physicalentities::Direction(-Vec3::Y))
-    } else {
-        None
+fn switch_direction<T: crate::physicalentities::Cube>(
+    mut query: Query<(&mut crate::physicalentities::Direction, &T, &Transform)>,
+    neutral_cubes: Query<&Transform, With<crate::physicalentities::Neutral>>,
+    keys: Res<Input<KeyCode>>,
+) {
+    let neutral_cubes_positions: Vec<Vec3> = neutral_cubes.iter().map(|x| x.translation).collect();
+    for (mut direction, cube, transform) in query.iter_mut() {
+        if let Some(new_direction) = cube.new_direction(&neutral_cubes_positions, &transform, &keys)
+        {
+            *direction = new_direction;
+        }
     }
 }
